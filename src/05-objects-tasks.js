@@ -52,12 +52,9 @@ function getJSON(obj) {
  *
  */
 function fromJSON(proto, json) {
-  const result = Object.create(proto, {});
   const obj = JSON.parse(json);
-  Object.keys(obj).forEach((key) => {
-    result[key] = obj[key];
-  });
-  return result;
+  Object.setPrototypeOf(obj, proto);
+  return obj;
 }
 
 /**
@@ -115,32 +112,87 @@ function fromJSON(proto, json) {
  */
 
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+  selector: '',
+
+  stringify() {
+    return this.selector;
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  element(value) {
+    this.error(1);
+
+    const obj = Object.create(cssSelectorBuilder);
+    obj.i = 1;
+    obj.selector = this.selector + value;
+    return obj;
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    this.error(2);
+
+    const obj = Object.create(cssSelectorBuilder);
+    obj.i = 2;
+    obj.selector = `${this.selector}#${value}`;
+    return obj;
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    this.error(3);
+
+    const obj = Object.create(cssSelectorBuilder);
+    obj.i = 3;
+    obj.selector = `${this.selector}.${value}`;
+    return obj;
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  attr(value) {
+    this.error(4);
+
+    const obj = Object.create(cssSelectorBuilder);
+    obj.i = 4;
+    obj.selector = `${this.selector}[${value}]`;
+    return obj;
   },
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  pseudoClass(value) {
+    this.error(5);
+
+    const obj = Object.create(cssSelectorBuilder);
+    obj.i = 5;
+    obj.selector = `${this.selector}:${value}`;
+    return obj;
   },
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  pseudoElement(value) {
+    this.error(6);
+
+    const obj = Object.create(cssSelectorBuilder);
+    obj.i = 6;
+    obj.selector = `${this.selector}::${value}`;
+    return obj;
+  },
+
+  combine(selector1, combinator, selector2) {
+    const obj = Object.create(cssSelectorBuilder);
+    const a = selector1.stringify();
+    const b = selector2.stringify();
+    obj.selector = `${a} ${combinator} ${b}`;
+    return obj;
+  },
+
+  error(ii) {
+    if (this.i > ii) {
+      throw new Error(
+        // eslint-disable-next-line comma-dangle
+        'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element'
+      );
+    }
+    if (this.i === ii && (ii === 1 || ii === 2 || ii === 6)) {
+      throw new Error(
+        // eslint-disable-next-line comma-dangle
+        'Element, id and pseudo-element should not occur more then one time inside the selector'
+      );
+    }
   },
 };
 

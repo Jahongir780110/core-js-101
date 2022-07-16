@@ -216,12 +216,11 @@ function findFirstSingleChar(str) {
  *
  */
 function getIntervalString(a, b, isStartIncluded, isEndIncluded) {
-  let x = a;
-  let y = b;
-  if (x > y) {
-    [x, y] = [y, x];
+  if (a > b) {
+    // eslint-disable-next-line no-param-reassign
+    [a, b] = [b, a];
   }
-  return `${isStartIncluded ? '[' : '('}${x}, ${y}${isEndIncluded ? ']' : ')'}`;
+  return `${isStartIncluded ? '[' : '('}${a}, ${b}${isEndIncluded ? ']' : ')'}`;
 }
 
 /**
@@ -410,8 +409,27 @@ function toNaryString(num, n) {
  *   ['/web/assets/style.css', '/.bin/mocha',  '/read.me'] => '/'
  *   ['/web/favicon.ico', '/web-scripts/dump', '/verbalizer/logs'] => '/'
  */
-function getCommonDirectoryPath(/* pathes */) {
-  throw new Error('Not implemented');
+function getCommonDirectoryPath(pathes) {
+  // eslint-disable-next-line no-param-reassign
+  pathes.sort((a, b) => a.length - b.length);
+
+  const tempPathes = pathes.map((p) => p.split('/'));
+  const firstPath = tempPathes[0];
+  let condition = true;
+  let index = 0;
+
+  while (condition) {
+    for (let i = 1; i < tempPathes.length; i += 1) {
+      if (tempPathes[i][index] !== firstPath[index]) {
+        condition = false;
+        index -= 1;
+        break;
+      }
+    }
+    index += 1;
+  }
+
+  return `${firstPath.slice(0, index).join('/')}${index === 0 ? '' : '/'}`;
 }
 
 /**
@@ -432,8 +450,19 @@ function getCommonDirectoryPath(/* pathes */) {
  *                         [ 6 ]]
  *
  */
-function getMatrixProduct(/* m1, m2 */) {
-  throw new Error('Not implemented');
+function getMatrixProduct(m1, m2) {
+  const result = [];
+  for (let i = 0; i < m1.length; i += 1) {
+    result[i] = [];
+    for (let j = 0; j < m2[0].length; j += 1) {
+      let sum = 0;
+      for (let k = 0; k < m1[0].length; k += 1) {
+        sum += m1[i][k] * m2[k][j];
+      }
+      result[i][j] = sum;
+    }
+  }
+  return result;
 }
 
 /**
@@ -466,8 +495,61 @@ function getMatrixProduct(/* m1, m2 */) {
  *    [    ,   ,    ]]
  *
  */
-function evaluateTicTacToePosition(/* position */) {
-  throw new Error('Not implemented');
+function evaluateTicTacToePosition(position) {
+  const lines = [
+    [
+      [0, 0],
+      [0, 1],
+      [0, 2],
+    ],
+    [
+      [1, 0],
+      [1, 1],
+      [1, 2],
+    ],
+    [
+      [2, 0],
+      [2, 1],
+      [2, 2],
+    ],
+    [
+      [0, 0],
+      [1, 0],
+      [2, 0],
+    ],
+    [
+      [0, 1],
+      [1, 1],
+      [2, 1],
+    ],
+    [
+      [0, 2],
+      [1, 2],
+      [2, 2],
+    ],
+    [
+      [0, 0],
+      [1, 1],
+      [2, 2],
+    ],
+    [
+      [0, 2],
+      [1, 1],
+      [2, 0],
+    ],
+  ];
+  for (let i = 0; i < lines.length; i += 1) {
+    const [a, b, c] = lines[i];
+    if (
+      // eslint-disable-next-line operator-linebreak
+      position[a[0]][a[1]] === position[b[0]][b[1]] &&
+      position[a[0]][a[1]] === position[c[0]][c[1]] &&
+      position[a[0]][a[1]] !== undefined
+    ) {
+      return position[a[0]][a[1]];
+    }
+  }
+  return undefined;
 }
 
 module.exports = {
