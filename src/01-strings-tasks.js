@@ -18,7 +18,7 @@
  *   '',  'bb'  => 'bb'
  */
 function concatenateStrings(value1, value2) {
-  return `${value1}${value2}`;
+  return value1 + value2;
 }
 
 /**
@@ -239,12 +239,13 @@ function encodeToRot13(str) {
   const letters = 'abcdefghijklmnopqrstuvwxyz';
   let result = '';
   for (let i = 0; i < str.length; i += 1) {
-    if (letters.indexOf(str[i].toLowerCase()) === -1) {
+    const index = letters.indexOf(str[i].toLowerCase());
+    if (index === -1) {
       result += str[i];
-    } else if (letters.indexOf(str[i].toLowerCase()) <= 12) {
-      result += String.fromCharCode(str[i].charCodeAt(0) + 13);
+    } else if (index <= 12) {
+      result += String.fromCharCode(str.charCodeAt(i) + 13);
     } else {
-      result += String.fromCharCode(str[i].charCodeAt(0) - 13);
+      result += String.fromCharCode(str.charCodeAt(i) - 13);
     }
   }
   return result;
